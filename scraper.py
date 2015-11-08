@@ -1,24 +1,36 @@
-# This is a template for a Python scraper on morph.io (https://morph.io)
-# including some code snippets below that you should find helpful
+#!/usr/bin/env python
+import requests
+import lxml.html
+import scraperwiki
 
-# import scraperwiki
-# import lxml.html
-#
-# # Read in a page
-# html = scraperwiki.scrape("http://foo.com")
-#
-# # Find something on the page using css selectors
-# root = lxml.html.fromstring(html)
-# root.cssselect("div[align='left']")
-#
-# # Write out to the sqlite database using scraperwiki library
-# scraperwiki.sqlite.save(unique_keys=['name'], data={"name": "susan", "occupation": "software developer"})
-#
-# # An arbitrary query against the database
-# scraperwiki.sql.select("* from data where 'name'='peter'")
+html = requests.get('http://www.premierleague.com/en-gb/matchday/league-table.html').content
 
-# You don't have to do things with the ScraperWiki and lxml libraries.
-# You can use whatever libraries you want: https://morph.io/documentation/python
-# All that matters is that your final data is written to an SQLite database
-# called "data.sqlite" in the current working directory which has at least a table
-# called "data".
+dom = lxml.html.fromstring(html)
+
+premierLeagueData = []
+
+for row in dom.cssselect('tr.club-row'):
+    pos = int(row.cssselect('.col-pos')[0].text_content())
+    team = row.cssselect('.col-club')[0].text_content()
+    goalsFor = int(row.cssselect('.col-gf')[0].text_content())
+    goalsAgainst = int(row.cssselect('.col-ga')[0].text_content())
+    goalDifference = int(row.cssselect('.col-gd')[0].text_content())
+    points = int(row.cssselect('.col-pts')[0].text_content())
+    #print pos, team,"gf", goalsFor, "ga", goalsAgainst, "gd", goalDifference, "pts", points
+    teamItem = {'pos':pos,
+        'team':team,
+        'gf':goalsFor,
+        'ga':goalsAgainst,
+        'gd':goalDifference,
+        'pts':points}
+    premierLeagueData.append(teamItem)
+
+if len(premierLeagueData) > 0:
+    #truncate data store
+    scraperwiki.sql.execute("DELETE FROM `swdata`")
+    #add each table line to data store
+    for teamItem in premierLeagueData:
+        scraperwiki.sql.save(['team'], teamItem)
+
+
+
