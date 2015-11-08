@@ -27,7 +27,7 @@ for row in dom.cssselect('tr.club-row'):
 
 if len(premierLeagueData) > 0:
     #truncate data store
-    scraperwiki.sql.execute("DELETE FROM `swdata`")
+    scraperwiki.sql.execute("DROP TABLE IF EXISTS `swdata`")
     #add each table line to data store
     for teamItem in premierLeagueData:
         scraperwiki.sql.save(['team'], teamItem)
