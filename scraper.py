@@ -30,7 +30,7 @@ for row in currentPane.cssselect('table .tableBodyContainer > tr:not(.expandable
 
 if len(premierLeagueData) > 0:
     #truncate data store
-    scraperwiki.sql.execute("DROP TABLE IF EXISTS `swdata`")
+    scraperwiki.sql.execute("DROP TABLE data")
     #add each table line to data store
     for teamItem in premierLeagueData:
         scraperwiki.sql.save(['team'], teamItem)
